@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartphone Tycoon Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .compact-mode .bg-slate-900 { padding: 1rem !important; }
+        .compact-mode .text-xl { font-size: 1.1rem !important; }
+        .compact-mode .p-6 { padding: 1rem !important; }
+        .compact-mode .gap-6 { gap: 1rem !important; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-mobile-screen-button text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wide text-white">Apex Mobile</h1>
+                <p class="text-xs text-slate-400">CEO: <span class="text-indigo-400">Игрок</span></p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-6 bg-slate-950/60 px-5 py-2 rounded-2xl border border-slate-800/80">
+            <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Баланс</div>
+                <div id="stat-money" class="text-emerald-400 font-bold text-lg">$1,500,000</div>
+            </div>
+            <div class="h-8 w-px bg-slate-800"></div>
+            <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Очки RP</div>
+                <div id="stat-rp" class="text-cyan-400 font-bold text-lg">150 RP</div>
+            </div>
+            <div class="h-8 w-px bg-slate-800"></div>
+            <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Хайп</div>
+                <div id="stat-hype" class="text-amber-400 font-bold text-lg">0%</div>
+            </div>
+            <div class="h-8 w-px bg-slate-800"></div>
+            <div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Дата</div>
+                <div id="stat-date" class="text-slate-200 font-bold text-lg">Янв 2026</div>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button onclick="nextMonth()" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition transform active:scale-95 flex items-center space-x-2">
+                <i class="fa-solid fa-forward"></i>
+                <span>Следующий месяц</span>
+            </button>
+            <button onclick="resetData()" class="bg-rose-900/40 border border-rose-800 hover:bg-rose-800/60 text-rose-300 px-3 py-2.5 rounded-xl transition text-xs font-semibold" title="Сбросить сохранение">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Сброс
+            </button>
+            <button onclick="saveGame()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2.5 rounded-xl transition" title="Сохранить игру">
+                <i class="fa-solid fa-floppy-disk text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <nav class="bg-slate-900/50 border-b border-slate-800 px-6 flex space-x-2 overflow-x-auto">
+        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-indigo-500 text-indigo-400 transition flex items-center space-x-2">
+            <i class="fa-solid fa-chart-line"></i><span>Обзор</span>
+        </button>
+        <button onclick="switchTab('constructor')" id="tab-btn-constructor" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2">
+            <i class="fa-solid fa-screwdriver-wrench"></i><span>Конструктор</span>
+        </button>
+        <button onclick="switchTab('rnd')" id="tab-btn-rnd" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2">
+            <i class="fa-solid fa-flask"></i><span>Дерево R&D</span>
+        </button>
+        <button onclick="switchTab('marketing')" id="tab-btn-marketing" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2">
+            <i class="fa-solid fa-bullhorn"></i><span>Маркетинг & Кейноут</span>
+        </button>
+        <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2">
+            <i class="fa-solid fa-warehouse"></i><span>Склад и Отзывы</span>
+        </button>
+        <button onclick="switchTab('archive')" id="tab-btn-archive" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2">
+            <i class="fa-solid fa-box-archive"></i><span>Архив</span>
+        </button>
+        <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-5 py-3 font-medium text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2">
+            <i class="fa-solid fa-gear"></i><span>Настройки</span>
+        </button>
+    </nav>
+
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+
+        <!-- ДАШБОРД -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-mobile text-indigo-400"></i>
+                                <span>Текущая модель</span>
+                            </h2>
+                            <span id="dash-phone-status" class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20">В продаже</span>
+                        </div>
+                        <div id="dash-phone-info" class="space-y-3 text-sm text-slate-300">
+                            <p class="text-slate-400 italic">У вас еще нет созданного смартфона. Перейдите в конструктор!</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('constructor')" class="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-indigo-400 font-semibold py-2.5 rounded-xl transition text-sm">
+                        Разработать новый телефон
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 lg:col-span-2 shadow-xl flex flex-col">
+                    <h2 class="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-area text-indigo-400"></i>
+                        <span>Финансовая аналитика</span>
+                    </h2>
+                    <div class="flex-1 relative min-h-[220px]">
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
+                    <span>История компании</span>
+                </h2>
+                <div id="event-log" class="space-y-2 max-h-48 overflow-y-auto pr-2 text-sm text-slate-300">
+                    <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">Компания «Apex Mobile» успешно основана! Добро пожаловать на рынок смартфонов.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- КОНСТРУКТОР -->
+        <section id="tab-constructor" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-screwdriver-wrench text-indigo-400"></i>
+                        <span>Конструктор Смартфона</span>
+                    </h2>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Название модели</label>
+                        <input type="text" id="phone-name-input" value="Apex One" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 font-medium">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Дисплей</label>
+                            <select id="part-display" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="ips" data-cost="20" data-quality="30">60Hz HD IPS ($20)</option>
+                                <option value="amoled90" data-cost="35" data-quality="55" id="opt-amoled90" disabled>90Hz FHD+ AMOLED ($35) [🔒 R&D]</option>
+                                <option value="amoled120" data-cost="70" data-quality="85" id="opt-amoled120" disabled>120Hz LTPO AMOLED ($70) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Корпус</label>
+                            <select id="part-body" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="plastic" data-cost="10" data-quality="20">Пластик ($10)</option>
+                                <option value="glass" data-cost="25" data-quality="45" id="opt-glass" disabled>Закаленное стекло ($25) [🔒 R&D]</option>
+                                <option value="titanium" data-cost="65" data-quality="80" id="opt-titanium" disabled>Титановый фрейм ($65) [🔒 R&D]</option>
+                                <option value="foldable" data-cost="130" data-quality="110" id="opt-foldable" disabled>Складной Form-Factor ($130) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Процессор (SoC)</label>
+                            <select id="part-cpu" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="chip12" data-cost="25" data-quality="35">12nm Базовый Чип ($25)</option>
+                                <option value="chip7" data-cost="50" data-quality="60" id="opt-chip7" disabled>7nm FinFET ($50) [🔒 R&D]</option>
+                                <option value="chip3" data-cost="110" data-quality="95" id="opt-chip3" disabled>3nm Флагман ($110) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Камера</label>
+                            <select id="part-camera" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="cam12" data-cost="15" data-quality="30">12 MP Основная ($15)</option>
+                                <option value="cam108" data-cost="40" data-quality="65" id="opt-cam108" disabled>108 MP Pixel Binning ($40) [🔒 R&D]</option>
+                                <option value="camperiscope" data-cost="90" data-quality="100" id="opt-camperiscope" disabled>Перископ 10x Zoom ($90) [🔒 R&D]</option>
+                                <option value="udc" data-cost="115" data-quality="115" id="opt-udc" disabled>Камера под экраном (UDC) ($115) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Аккумулятор</label>
+                            <select id="part-battery" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="bat4000" data-cost="12" data-quality="30">4000 mAh (18W) ($12)</option>
+                                <option value="bat5000" data-cost="22" data-quality="55" id="opt-bat5000" disabled>5000 mAh Si/C ($22) [🔒 R&D]</option>
+                                <option value="bat120w" data-cost="45" data-quality="85" id="opt-bat120w" disabled>120W GaN Fast Charge ($45) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Софт и ОС</label>
+                            <select id="part-os" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="stock" data-cost="5" data-quality="25">Стоковый Android ($5)</option>
+                                <option value="customui" data-cost="15" data-quality="60">Фирменная оболочка UI ($15)</option>
+                            </select>
+                        </div>
+
+                        <!-- НОВЫЕ КАТЕГОРИИ КОМПОНЕНТОВ -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Связь и Сеть</label>
+                            <select id="part-network" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="net4g" data-cost="0" data-quality="20">4G LTE (Базовый) ($0)</option>
+                                <option value="net5gsub6" data-cost="12" data-quality="50" id="opt-net5gsub6" disabled>5G Sub-6GHz ($12) [🔒 R&D]</option>
+                                <option value="net5gmm" data-cost="30" data-quality="85" id="opt-net5gmm" disabled>5G mmWave + Wi-Fi 7 ($30) [🔒 R&D]</option>
+                                <option value="satellite" data-cost="55" data-quality="105" id="opt-satellite" disabled>Спутниковая связь SOS ($55) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Биометрия</label>
+                            <select id="part-security" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="secback" data-cost="5" data-quality="25">Сканер на спинке ($5)</option>
+                                <option value="secoptical" data-cost="15" data-quality="55" id="opt-secoptical" disabled>Сканер под экраном ($15) [🔒 R&D]</option>
+                                <option value="sec3dface" data-cost="35" data-quality="90" id="opt-sec3dface" disabled>3D Face ID + Ультразвук ($35) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Звук и Аудио</label>
+                            <select id="part-audio" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="audiomono" data-cost="0" data-quality="20">Моно-динамик ($0)</option>
+                                <option value="audiostereo" data-cost="10" data-quality="55" id="opt-audiostereo" disabled>Стерео Dolby Atmos ($10) [🔒 R&D]</option>
+                                <option value="audiohifi" data-cost="28" data-quality="85" id="opt-audiohifi" disabled>ЦАП (Hi-Fi DAC) + Стерео ($28) [🔒 R&D]</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Беспроводная зарядка</label>
+                            <select id="part-charging" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="chargeno" data-cost="0" data-quality="10">Без беспроводной зарядки ($0)</option>
+                                <option value="chargeqi" data-cost="12" data-quality="45" id="opt-chargeqi" disabled>Qi 15W Беспроводная ($12) [🔒 R&D]</option>
+                                <option value="chargemag" data-cost="25" data-quality="80" id="opt-chargemag" disabled>Магнитная 50W MagCharge ($25) [🔒 R&D]</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Розничная цена ($)</label>
+                            <input type="number" id="phone-price-input" value="499" oninput="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Завод-подрядчик</label>
+                            <select id="factory-tier" onchange="updateBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="budget" data-extra="5" data-defect="8">Бюджетный завод (+$5, брак 8%)</option>
+                                <option value="standard" data-extra="15" data-defect="2">Стандартный завод (+$15, брак 2%)</option>
+                                <option value="premium" data-extra="35" data-defect="0">Foxconn Премиум (+$35, брак 0%)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-400 mb-1">
+                            <span>Объем первой партии:</span>
+                            <span id="batch-size-val" class="text-indigo-400 font-bold">100 000 шт.</span>
+                        </div>
+                        <input type="range" id="batch-size-range" min="10000" max="1000000" step="10000" value="100000" oninput="updateBuilder()" class="w-full accent-indigo-500 bg-slate-950 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+                    <div class="space-y-6">
+                        <div class="text-center pb-6 border-b border-slate-800">
+                            <div class="w-24 h-44 bg-slate-950 border-2 border-slate-700 rounded-3xl mx-auto flex flex-col items-center justify-between p-3 shadow-inner relative overflow-hidden">
+                                <div class="w-10 h-3 bg-slate-800 rounded-full"></div>
+                                <div class="text-center">
+                                    <i class="fa-solid fa-microchip text-indigo-400 text-2xl mb-1"></i>
+                                    <div class="text-[10px] text-slate-300 font-bold truncate max-w-[70px]" id="preview-title">Apex One</div>
+                                </div>
+                                <div class="w-8 h-1 bg-slate-800 rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Себестоимость:</span>
+                                <span id="summary-cost" class="font-bold text-white">$87</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Затраты на партию:</span>
+                                <span id="summary-total-cost" class="font-bold text-indigo-400">$8,700,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Маржа с 1 шт:</span>
+                                <span id="summary-margin" class="font-bold text-emerald-400">$412</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Оценка качества:</span>
+                                <span id="summary-quality" class="font-bold text-amber-400">30 / 100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="launchPhone()" class="mt-6 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition transform active:scale-95 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-rocket"></i>
+                        <span>Запустить производство</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- R&D -->
+        <section id="tab-rnd" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-flask text-indigo-400"></i>
+                        <span>Дерево Исследований (R&D)</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Инвестируйте в науку и открывайте передовые компоненты.</p>
+                </div>
+                <div class="flex items-center space-x-4 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800">
+                    <span class="text-xs text-slate-400 font-semibold uppercase">Бюджет R&D:</span>
+                    <select id="rnd-budget-select" onchange="changeRndBudget()" class="bg-slate-900 text-cyan-400 font-bold text-sm focus:outline-none">
+                        <option value="0">$0 / мес (+0 RP)</option>
+                        <option value="10000">$10,000 / мес (+10 RP)</option>
+                        <option value="50000" selected>$50,000 / мес (+25 RP)</option>
+                        <option value="150000">$150,000 / мес (+55 RP)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="rnd-tech-container"></div>
+        </section>
+
+        <!-- МАРКЕТИНГ -->
+        <section id="tab-marketing" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-microphone-lines text-indigo-400"></i>
+                            <span>Презентация (Keynote)</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Устройте грандиозную презентацию нового смартфона, чтобы поднять Хайп.</p>
+                        
+                        <div class="space-y-3 pt-2">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Масштаб мероприятия</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button onclick="setKeynoteType('online', 20000, 15, this)" class="keynote-btn p-3 rounded-xl border border-indigo-500 bg-indigo-600/10 text-indigo-400 font-semibold text-xs text-center transition">Онлайн стрим ($20k)</button>
+                                <button onclick="setKeynoteType('hall', 150000, 35, this)" class="keynote-btn p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-semibold text-xs text-center transition">Зал на 2000 чел ($150k)</button>
+                                <button onclick="setKeynoteType('stadium', 1000000, 75, this)" class="keynote-btn p-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 font-semibold text-xs text-center transition">Стадион ($1M)</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="startKeynote()" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">
+                        Провести Презентацию
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-bullhorn text-indigo-400"></i>
+                            <span>Реклама в соцсетях</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Запуск таргетированной рекламы поддерживает спрос на вашу активную партию.</p>
+
+                        <div class="space-y-3 pt-2">
+                            <div class="flex justify-between text-xs text-slate-400 font-semibold">
+                                <span>Бюджет кампании в месяц:</span>
+                                <span id="ad-budget-val" class="text-indigo-400 font-bold">$0</span>
+                            </div>
+                            <input type="range" id="ad-budget-range" min="0" max="500000" step="10000" value="0" oninput="updateAdBudget(this.value)" class="w-full accent-indigo-500 bg-slate-950 cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-xs text-slate-400">
+                        Текущий прирост хайпа от рекламы: <span id="ad-hype-gain" class="text-emerald-400 font-bold">+0% / мес</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- СКЛАД И ОТЗЫВЫ -->
+        <section id="tab-analytics" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-warehouse text-indigo-400"></i>
+                        <span>Управление складом партии</span>
+                    </h2>
+                    <div id="warehouse-info" class="space-y-3 text-sm text-slate-300">
+                        <p class="text-slate-400 italic">На складе нет активных партий смартфонов.</p>
+                    </div>
+                    <div id="clearance-box" class="hidden pt-4 border-t border-slate-800">
+                        <button onclick="startClearanceSale()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl transition text-sm shadow-lg shadow-amber-600/20">
+                            Устроить Распродажу остатков со скидкой 40%
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+                        <span>Метрики и Статистика</span>
+                    </h2>
+                    <div id="model-stats-box" class="space-y-3 text-sm text-slate-300">
+                        <p class="text-slate-400 italic">Нет данных о продажах.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- СЕКЦИЯ ОТЗЫВОВ И КРИТИКИ -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-comments text-amber-400"></i>
+                    <span>Отзывы покупателей и прессы</span>
+                </h2>
+                <div id="model-reviews-box" class="space-y-3">
+                    <p class="text-slate-400 italic text-sm">Выпустите устройство, чтобы получить первые обзоры и оценки покупателей.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- АРХИВ -->
+        <section id="tab-archive" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-white flex items-center space-x-2 mb-4">
+                    <i class="fa-solid fa-chart-simple text-indigo-400"></i>
+                    <span>Сводная статистика компании</span>
+                </h2>
+                <div id="archive-summary" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-box-archive text-indigo-400"></i>
+                        <span>История выпущенных моделей</span>
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400 font-semibold uppercase">Сортировка:</label>
+                        <select id="archive-sort" onchange="renderArchive()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500">
+                            <option value="newest">Сначала новые</option>
+                            <option value="profit">По прибыли</option>
+                            <option value="sold">По продажам</option>
+                            <option value="quality">По качеству</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="archive-list" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- НАСТРОЙКИ -->
+        <section id="tab-settings" class="tab-content hidden space-y-6">
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-white flex items-center space-x-2 mb-4">
+                    <i class="fa-solid fa-building text-indigo-400"></i>
+                    <span>Профиль компании</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Название компании</label>
+                        <input type="text" id="settings-company-name" maxlength="30" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 font-medium" placeholder="Apex Mobile">
+                        <p class="text-[10px] text-slate-500 mt-1">Отображается в шапке игры</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Имя CEO</label>
+                        <input type="text" id="settings-ceo-name" maxlength="20" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 font-medium" placeholder="Игрок">
+                        <p class="text-[10px] text-slate-500 mt-1">Ваше имя в игре</p>
+                    </div>
+                </div>
+                <button onclick="saveCompanyProfile()" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2 rounded-xl transition text-sm">
+                    <i class="fa-solid fa-check mr-1"></i> Сохранить профиль
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2 mb-4">
+                        <i class="fa-solid fa-gauge-high text-indigo-400"></i>
+                        <span>Сложность</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-3">Влияет на спрос и стартовый капитал (применяется при новой игре).</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/40 transition">
+                            <input type="radio" name="difficulty" value="easy" onchange="changeDifficulty(this.value)" class="accent-emerald-500">
+                            <div class="flex-1">
+                                <div class="font-semibold text-sm text-emerald-400">😎 Легко</div>
+                                <div class="text-[10px] text-slate-500">Старт $2.5M, спрос +30%</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/40 transition">
+                            <input type="radio" name="difficulty" value="normal" onchange="changeDifficulty(this.value)" class="accent-indigo-500" checked>
+                            <div class="flex-1">
+                                <div class="font-semibold text-sm text-indigo-400">🎯 Нормально</div>
+                                <div class="text-[10px] text-slate-500">Старт $1.5M, стандартный спрос</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/40 transition">
+                            <input type="radio" name="difficulty" value="hard" onchange="changeDifficulty(this.value)" class="accent-rose-500">
+                            <div class="flex-1">
+                                <div class="font-semibold text-sm text-rose-400">🔥 Хардкор</div>
+                                <div class="text-[10px] text-slate-500">Старт $800K, спрос -25%</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2 mb-4">
+                        <i class="fa-solid fa-palette text-indigo-400"></i>
+                        <span>Интерфейс</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                            <div>
+                                <div class="font-semibold text-sm text-white">Уведомления</div>
+                                <div class="text-[10px] text-slate-500">Показывать всплывающие сообщения</div>
+                            </div>
+                            <input type="checkbox" id="settings-notifications" onchange="toggleSetting('notifications', this.checked)" class="accent-indigo-500 w-5 h-5 cursor-pointer">
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                            <div>
+                                <div class="font-semibold text-sm text-white">Анимации</div>
+                                <div class="text-[10px] text-slate-500">Плавные переходы и эффекты</div>
+                            </div>
+                            <input type="checkbox" id="settings-animations" onchange="toggleSetting('animations', this.checked)" class="accent-indigo-500 w-5 h-5 cursor-pointer">
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl">
+                            <div>
+                                <div class="font-semibold text-sm text-white">Компактный вид</div>
+                                <div class="text-[10px] text-slate-500">Уменьшить размеры карточек</div>
+                            </div>
+                            <input type="checkbox" id="settings-compact" onchange="toggleSetting('compact', this.checked)" class="accent-indigo-500 w-5 h-5 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-white flex items-center space-x-2 mb-4">
+                    <i class="fa-solid fa-floppy-disk text-indigo-400"></i>
+                    <span>Сохранения</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex justify-between items-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl mb-3">
+                            <div>
+                                <div class="font-semibold text-sm text-white">Автосохранение</div>
+                                <div class="text-[10px] text-slate-500">Сохранять в конце каждого месяца</div>
+                            </div>
+                            <input type="checkbox" id="settings-autosave" onchange="toggleSetting('autosave', this.checked)" class="accent-indigo-500 w-5 h-5 cursor-pointer">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="saveGame()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl transition text-sm">
+                                <i class="fa-solid fa-download mr-1"></i> Сохранить
+                            </button>
+                            <button onclick="loadGame(true)" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-sm">
+                                <i class="fa-solid fa-upload mr-1"></i> Загрузить
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-xs text-slate-400 mb-2 font-semibold">Резервная копия (JSON)</div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="exportSave()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl transition text-sm">
+                                <i class="fa-solid fa-file-export mr-1"></i> Экспорт в файл
+                            </button>
+                            <label class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl transition text-sm text-center cursor-pointer">
+                                <i class="fa-solid fa-file-import mr-1"></i> Импорт из файла
+                                <input type="file" id="import-file" accept=".json" onchange="importSave(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Промокоды -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-white flex items-center space-x-2 mb-4">
+                    <i class="fa-solid fa-gift text-amber-400"></i>
+                    <span>Промокод</span>
+                </h2>
+                <p class="text-xs text-slate-400 mb-3">Введите код, чтобы получить награду. Каждый код можно активировать только один раз.</p>
+
+                <div class="flex gap-2">
+                    <input type="text" id="promo-input" maxlength="20" placeholder="Введите код..."
+                           class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500 font-mono uppercase tracking-wider"
+                           onkeydown="if(event.key==='Enter') redeemPromoCode()">
+                    <button onclick="redeemPromoCode()"
+                            class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-2.5 rounded-xl transition">
+                        <i class="fa-solid fa-check mr-1"></i> Активировать
+                    </button>
+                </div>
+
+                <div id="promo-history" class="mt-4 space-y-2"></div>
+            </div>
+
+            <div class="bg-rose-950/20 border border-rose-900/50 rounded-2xl p-6 shadow-xl">
+                <h2 class="text-xl font-bold text-rose-400 flex items-center space-x-2 mb-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Опасная зона</span>
+                </h2>
+                <p class="text-xs text-slate-400 mb-3">Эти действия необратимы. Убедитесь, что сделали резервную копию.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button onclick="confirmReset()" class="w-full bg-rose-900/40 border border-rose-800 hover:bg-rose-800/60 text-rose-300 font-semibold py-2.5 rounded-xl transition text-sm">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Сбросить весь прогресс
+                    </button>
+                    <button onclick="clearAllSaves()" class="w-full bg-rose-900/40 border border-rose-800 hover:bg-rose-800/60 text-rose-300 font-semibold py-2.5 rounded-xl transition text-sm">
+                        <i class="fa-solid fa-trash mr-1"></i> Удалить все сохранения
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-600 py-4">
+                Smartphone Tycoon Pro • v1.5 • Сделано с ❤️
+            </div>
+        </section>
+
+    </main>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] space-y-2 pointer-events-none"></div>
+
+    <script>
+        function createInitialState() {
+            return {
+                money: 1500000,
+                rp: 150,
+                hype: 0,
+                dateMonth: 0,
+                year: 2026,
+                companyName: "Apex Mobile",
+                ceoName: "Игрок",
+                rndBudget: 50000,
+                adBudget: 0,
+                keynoteType: 'online',
+                keynoteCost: 20000,
+                keynoteHypeBoost: 15,
+                activePhone: null,
+                phoneHistory: [],
+                unlockedTechs: [],
+                difficulty: 'normal',
+                settings: {
+                    notifications: true,
+                    animations: true,
+                    compact: false,
+                    autosave: false
+                },
+                usedPromoCodes: []
+            };
+        }
+
+        let game = createInitialState();
+        const months = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+
+        // РАСШИРЕННАЯ БАЗА ТЕХНОЛОГИЙ R&D
+        const techTreeData = [
+            // Дисплеи
+            { id: 'amoled90', name: '90Hz AMOLED Дисплей', branch: 'Дисплеи', cost: 70, moneyCost: 25000, desc: 'Экран с высокой четкостью и частотой обновления.' },
+            { id: 'amoled120', name: '120Hz LTPO Дисплей', branch: 'Дисплеи', cost: 180, moneyCost: 90000, req: 'amoled90', desc: 'Флагманский адаптивный экран.' },
+            
+            // Корпус & Форм-фактор
+            { id: 'glass', name: 'Закаленное Стекло', branch: 'Корпус', cost: 50, moneyCost: 20000, desc: 'Стеклянная панель для стильного дизайна.' },
+            { id: 'titanium', name: 'Титановый Фрейм', branch: 'Корпус', cost: 220, moneyCost: 110000, req: 'glass', desc: 'Прочный металл для премиум-класса.' },
+            
+            // Процессоры
+            { id: 'chip7', name: '7nm FinFET Чипсет', branch: 'Процессор', cost: 100, moneyCost: 50000, desc: 'Быстрый чипсет с низким потреблением.' },
+            { id: 'chip3', name: '3nm Флагманский SoC', branch: 'Процессор', cost: 300, moneyCost: 280000, req: 'chip7', desc: 'Самый мощный процессор на рынке.' },
+            
+            // Камеры
+            { id: 'cam108', name: '108 MP Сенсор', branch: 'Камера', cost: 90, moneyCost: 35000, desc: 'Детальные фото высокого разрешения.' },
+            { id: 'camperiscope', name: 'Перископ 10x Zoom', branch: 'Камера', cost: 270, moneyCost: 180000, req: 'cam108', desc: 'Продвинутый модуль приближения.' },
+            
+            // Питание
+            { id: 'bat5000', name: '5000 mAh Батарея', branch: 'Питание', cost: 80, moneyCost: 30000, desc: 'Повышенная автономность.' },
+            { id: 'bat120w', name: 'Быстрая Зарядка 120W', branch: 'Питание', cost: 250, moneyCost: 160000, req: 'bat5000', desc: 'Зарядка до 100% за минуты.' },
+
+            // Связь и Сети (Connectivity)
+            { id: 'net5gsub6', name: '5G Sub-6GHz Модем', branch: 'Связь', cost: 60, moneyCost: 15000, desc: 'Доступные скоростные мобильные сети.' },
+            { id: 'net5gmm', name: '5G mmWave + Wi-Fi 7', branch: 'Связь', cost: 190, moneyCost: 80000, req: 'net5gsub6', desc: 'Топовая скорость передач и интеграция.' },
+
+            // Биометрия (Security)
+            { id: 'secoptical', name: 'Сканер под экраном', branch: 'Биометрия', cost: 80, moneyCost: 30000, desc: 'Удобный оптический датчик отпечатков.' },
+            { id: 'sec3dface', name: '3D Face ID + Ультразвук', branch: 'Биометрия', cost: 220, moneyCost: 120000, req: 'secoptical', desc: 'Максимальная безопасность премиум-уровня.' },
+
+            // Звук (Audio)
+            { id: 'audiostereo', name: 'Стерео Dolby Atmos', branch: 'Звук', cost: 50, moneyCost: 20000, desc: 'Объемное чистая акустическая система.' },
+            { id: 'audiohifi', name: 'ЦАП (Hi-Fi DAC) + Стерео', branch: 'Звук', cost: 140, moneyCost: 60000, req: 'audiostereo', desc: 'Звук студийного качества для аудиофилов.' },
+
+            // Зарядка (Charging)
+            { id: 'chargeqi', name: 'Qi 15W Беспроводная', branch: 'Зарядка', cost: 70, moneyCost: 25000, desc: 'Комфортная зарядка без проводов.' },
+            { id: 'chargemag', name: '50W MagCharge', branch: 'Зарядка', cost: 200, moneyCost: 90000, req: 'chargeqi', desc: 'Быстрая магнитная фиксация заряда.' },
+
+            // GAME CHANGERS
+            { id: 'foldable', name: 'Складной гибкий экран', branch: 'Инновации', cost: 350, moneyCost: 300000, req: 'amoled120', desc: 'Разблокирует гибкий корпус (+30 к кач-ву, +20% к Хайпу).' },
+            { id: 'udc', name: 'Камера под экраном (UDC)', branch: 'Инновации', cost: 280, moneyCost: 210000, req: 'camperiscope', desc: 'Абсолютно безрамочный дисплей без вырезов.' },
+            { id: 'satellite', name: 'Спутниковая связь SOS', branch: 'Инновации', cost: 240, moneyCost: 180000, req: 'net5gmm', desc: 'Экстренные сообщения в любой точке планеты.' }
+        ];
+
+        const PROMO_CODES = {
+            'MONEY2026': { reward: { money: 1000000 }, desc: '+$1,000,000' },
+            'RP2026':    { reward: { rp: 500 },         desc: '+500 RP' }
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-500', 'text-indigo-400');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+            document.getElementById('tab-btn-' + tabId).classList.add('border-indigo-500', 'text-indigo-400');
+            document.getElementById('tab-btn-' + tabId).classList.remove('border-transparent', 'text-slate-400');
+
+            if (tabId === 'rnd') renderRndTree();
+            if (tabId === 'archive') renderArchive();
+            if (tabId === 'settings') openSettings();
+        }
+
+        function renderRndTree() {
+            const container = document.getElementById('rnd-tech-container');
+            container.innerHTML = '';
+
+            techTreeData.forEach(tech => {
+                const isUnlocked = game.unlockedTechs && game.unlockedTechs.includes(tech.id);
+                const reqMet = !tech.req || (game.unlockedTechs && game.unlockedTechs.includes(tech.req));
+
+                let cardClass = "bg-slate-950 border-slate-800 text-slate-300";
+                let btnHtml = `<button onclick="unlockTech('${tech.id}', ${tech.cost}, ${tech.moneyCost})" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2 rounded-xl transition">Исследовать (${tech.cost} RP, $${tech.moneyCost.toLocaleString()})</button>`;
+
+                if (tech.branch === 'Инновации') {
+                    cardClass = "bg-amber-950/10 border-amber-500/30 text-amber-200 shadow-amber-500/5";
+                }
+
+                if (isUnlocked) {
+                    cardClass = "bg-emerald-950/20 border-emerald-500/30 text-emerald-300";
+                    btnHtml = `<div class="text-xs font-bold text-emerald-400 text-center py-2"><i class="fa-solid fa-check mr-1"></i> Изучено</div>`;
+                } else if (!reqMet) {
+                    cardClass = "bg-slate-950/50 border-slate-900 text-slate-600 opacity-60";
+                    btnHtml = `<div class="text-xs text-slate-500 text-center py-2">🔒 Требуется ранняя технология</div>`;
+                }
+
+                container.innerHTML += `
+                    <div class="border rounded-2xl p-5 flex flex-col justify-between shadow-xl ${cardClass}">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-start gap-2">
+                                <h3 class="font-bold text-white text-sm">${tech.name}</h3>
+                                <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 shrink-0">${tech.branch}</span>
+                            </div>
+                            <p class="text-xs text-slate-400">${tech.desc}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-800/80">${btnHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function unlockTech(id, rpCost, moneyCost) {
+            if (game.rp < rpCost || game.money < moneyCost) {
+                showToast("Недостаточно очков RP или средств!", 'error');
+                return;
+            }
+            game.rp -= rpCost;
+            game.money -= moneyCost;
+            if (!game.unlockedTechs) game.unlockedTechs = [];
+            game.unlockedTechs.push(id);
+            applyUnlockedTechUI(id);
+            logEvent(`🔬 Изучена новая технология: ${techTreeData.find(t => t.id === id).name}!`);
+            renderRndTree();
+            updateUI();
+        }
+
+        function applyUnlockedTechUI(id) {
+            const opt = document.getElementById('opt-' + id);
+            if (opt) {
+                opt.disabled = false;
+                opt.text = opt.text.replace(/\s*\[🔒 R&D\]/g, '');
+            }
+        }
+
+        function changeRndBudget() {
+            game.rndBudget = parseInt(document.getElementById('rnd-budget-select').value);
+        }
+
+        function updateBuilder() {
+            const parts = [
+                'part-display', 'part-body', 'part-cpu', 'part-camera', 'part-battery',
+                'part-os', 'part-network', 'part-security', 'part-audio', 'part-charging'
+            ];
+
+            let unitCost = 0;
+            let totalQualityPoints = 0;
+
+            parts.forEach(id => {
+                const opt = document.getElementById(id).selectedOptions[0];
+                if (opt) {
+                    unitCost += parseInt(opt.dataset.cost || 0);
+                    totalQualityPoints += parseInt(opt.dataset.quality || 0);
+                }
+            });
+
+            const factoryOpt = document.getElementById('factory-tier').selectedOptions[0];
+            unitCost += parseInt(factoryOpt.dataset.extra || 0);
+
+            let quality = Math.min(100, Math.round(totalQualityPoints / 8.5));
+
+            const batchSize = parseInt(document.getElementById('batch-size-range').value);
+            document.getElementById('batch-size-val').innerText = batchSize.toLocaleString() + ' шт.';
+
+            const retailPrice = parseInt(document.getElementById('phone-price-input').value) || 0;
+            const totalBatchCost = unitCost * batchSize;
+            const margin = retailPrice - unitCost;
+
+            document.getElementById('summary-cost').innerText = '$' + unitCost;
+            document.getElementById('summary-total-cost').innerText = '$' + totalBatchCost.toLocaleString();
+            document.getElementById('summary-margin').innerText = '$' + margin;
+            document.getElementById('summary-quality').innerText = quality + ' / 100';
+            document.getElementById('preview-title').innerText = document.getElementById('phone-name-input').value;
+        }
+
+        function generateReviews(phone) {
+            let reviews = [];
+
+            if (phone.retailPrice > phone.unitCost * 4) {
+                reviews.push({ type: 'neg', author: 'TechRadar', text: `«Цена в $${phone.retailPrice} явно завышена для этого смартфона!»` });
+            } else if (phone.retailPrice < phone.unitCost * 1.8) {
+                reviews.push({ type: 'pos', author: 'Mobile-Review', text: `«Замечательное соотношение цены и возможностей. Очень выгодно!»` });
+            } else {
+                reviews.push({ type: 'neu', author: 'IT-News', text: `«Адекватный ценник для своего сегмента рынка.»` });
+            }
+
+            if (phone.quality >= 75) {
+                reviews.push({ type: 'pos', author: 'GeekBench', text: `«Превосходная сборка и передовые компоненты. Топовый флагман!»` });
+            } else if (phone.quality <= 35) {
+                reviews.push({ type: 'neg', author: 'Покупатель в сети', text: `«Корпус скрипит, функций мало... Экономили на всём.»` });
+            } else {
+                reviews.push({ type: 'neu', author: 'Блогер ProTech', text: `«Обычный середнячок. Ничего выдающегося, но пользоваться приятно.»` });
+            }
+
+            if (phone.factoryTier === 'budget') {
+                reviews.push({ type: 'neg', author: 'Пользователь форума', text: `«В первой партии есть мелкие недочёты сборки.»` });
+            } else if (phone.factoryTier === 'premium') {
+                reviews.push({ type: 'pos', author: 'TechJournal', text: `«Идеальная монолитная сборка от премиум-завода.»` });
+            }
+
+            return reviews;
+        }
+
+        function launchPhone() {
+            const name = document.getElementById('phone-name-input').value;
+            const retailPrice = parseInt(document.getElementById('phone-price-input').value) || 399;
+            const batchSize = parseInt(document.getElementById('batch-size-range').value);
+            const factoryTier = document.getElementById('factory-tier').value;
+
+            const parts = [
+                'part-display', 'part-body', 'part-cpu', 'part-camera', 'part-battery',
+                'part-os', 'part-network', 'part-security', 'part-audio', 'part-charging'
+            ];
+
+            let unitCost = 0;
+            let totalQualityPoints = 0;
+
+            parts.forEach(id => {
+                const opt = document.getElementById(id).selectedOptions[0];
+                if (opt) {
+                    unitCost += parseInt(opt.dataset.cost || 0);
+                    totalQualityPoints += parseInt(opt.dataset.quality || 0);
+                }
+            });
+
+            const factoryOpt = document.getElementById('factory-tier').selectedOptions[0];
+            unitCost += parseInt(factoryOpt.dataset.extra || 0);
+
+            let quality = Math.min(100, Math.round(totalQualityPoints / 8.5));
+            let totalCost = unitCost * batchSize;
+
+            if (game.money < totalCost) {
+                showToast("Недостаточно средств для запуска партии!", 'error');
+                return;
+            }
+
+            game.money -= totalCost;
+
+            // Бонус хайпа при запуске складного телефона или инноваций
+            const bodyVal = document.getElementById('part-body').value;
+            if (bodyVal === 'foldable') {
+                game.hype = Math.min(100, game.hype + 20);
+                logEvent(`✨ Складной дизайн устройства вызвал бурный ажиотаж! +20% к Хайпу!`);
+            }
+
+            if (game.activePhone) {
+                game.activePhone.isArchived = true;
+                game.activePhone.archivedDate = `${months[game.dateMonth]} ${game.year}`;
+                game.phoneHistory.push(game.activePhone);
+                logEvent(`📦 Модель «${game.activePhone.name}» перемещена в архив.`);
+            }
+
+            const newPhone = {
+                id: 'phone_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                name,
+                retailPrice,
+                unitCost,
+                quality,
+                batchSize,
+                stock: batchSize,
+                soldTotal: 0,
+                factoryTier,
+                revenueTotal: 0,
+                costTotal: totalCost,
+                launchDate: `${months[game.dateMonth]} ${game.year}`,
+                isArchived: false,
+                archivedDate: null
+            };
+
+            newPhone.reviews = generateReviews(newPhone);
+            game.activePhone = newPhone;
+
+            logEvent(`🚀 Выпущена новая модель «${name}» тиражом ${batchSize.toLocaleString()} шт.`);
+            updateUI();
+            switchTab('dashboard');
+            updateDashboard();
+        }
+
+        function updateAdBudget(val) {
+            game.adBudget = parseInt(val);
+            document.getElementById('ad-budget-val').innerText = '$' + game.adBudget.toLocaleString();
+            let gain = Math.round(game.adBudget / 10000);
+            document.getElementById('ad-hype-gain').innerText = `+${gain}% / мес`;
+        }
+
+        function setKeynoteType(type, cost, boost, btn) {
+            game.keynoteType = type;
+            game.keynoteCost = cost;
+            game.keynoteHypeBoost = boost;
+            document.querySelectorAll('.keynote-btn').forEach(b => {
+                b.classList.remove('border-indigo-500', 'bg-indigo-600/10', 'text-indigo-400');
+                b.classList.add('border-slate-800', 'bg-slate-950', 'text-slate-400');
+            });
+            btn.classList.add('border-indigo-500', 'bg-indigo-600/10', 'text-indigo-400');
+            btn.classList.remove('border-slate-800', 'bg-slate-950', 'text-slate-400');
+        }
+
+        function startKeynote() {
+            if (game.money < game.keynoteCost) {
+                showToast("Недостаточно средств для презентации!", 'error');
+                return;
+            }
+            if (!game.activePhone) {
+                showToast("Сначала создайте телефон!", 'warning');
+                return;
+            }
+            game.money -= game.keynoteCost;
+            game.hype = Math.min(100, game.hype + game.keynoteHypeBoost);
+            logEvent(`🎤 Проведена презентация! Хайп: ${game.hype}%.`);
+            updateUI();
+            showToast(`🎤 Презентация проведена! Хайп: ${game.hype}%`, 'success');
+        }
+
+        function startClearanceSale() {
+            if (!game.activePhone || game.activePhone.stock <= 0) return;
+            let sold = game.activePhone.stock;
+            let revenue = Math.round(sold * (game.activePhone.retailPrice * 0.6));
+            game.money += revenue;
+            game.activePhone.soldTotal += sold;
+            game.activePhone.revenueTotal += revenue;
+            game.activePhone.stock = 0;
+            logEvent(`🏷️ Распродажа: продано ${sold.toLocaleString()} шт., выручка: $${revenue.toLocaleString()}`);
+            updateUI();
+            updateDashboard();
+            showToast(`🏷️ Распродажа: +$${revenue.toLocaleString()}`, 'success');
+        }
+
+        function logEvent(text) {
+            const logBox = document.getElementById('event-log');
+            logBox.innerHTML = `<div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">${text}</div>` + logBox.innerHTML;
+        }
+
+        function showToast(message, type = 'info') {
+            if (game.settings && game.settings.notifications === false && type !== 'error') return;
+
+            const colors = {
+                success: 'bg-emerald-600/90 border-emerald-400',
+                error: 'bg-rose-600/90 border-rose-400',
+                info: 'bg-indigo-600/90 border-indigo-400',
+                warning: 'bg-amber-600/90 border-amber-400'
+            };
+
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border text-white text-sm font-semibold shadow-2xl backdrop-blur-md ${colors[type] || colors.info} transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerText = message;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function updateUI() {
+            document.getElementById('stat-money').innerText = '$' + Math.max(0, game.money).toLocaleString();
+            document.getElementById('stat-rp').innerText = game.rp + ' RP';
+            document.getElementById('stat-hype').innerText = game.hype + '%';
+            document.getElementById('stat-date').innerText = `${months[game.dateMonth]} ${game.year}`;
+        }
+
+        function updateDashboard() {
+            const infoBox = document.getElementById('dash-phone-info');
+            const whBox = document.getElementById('warehouse-info');
+            const statsBox = document.getElementById('model-stats-box');
+            const reviewsBox = document.getElementById('model-reviews-box');
+            const clearanceBox = document.getElementById('clearance-box');
+
+            if (!game.activePhone) {
+                infoBox.innerHTML = `<p class="text-slate-400 italic">У вас еще нет смартфона.</p>`;
+                whBox.innerHTML = `<p class="text-slate-400 italic">Склад пуст.</p>`;
+                statsBox.innerHTML = `<p class="text-slate-400 italic">Нет данных.</p>`;
+                if (reviewsBox) reviewsBox.innerHTML = `<p class="text-slate-400 italic text-sm">Выпустите устройство, чтобы получить обзоры.</p>`;
+                clearanceBox.classList.add('hidden');
+                return;
+            }
+
+            let p = game.activePhone;
+            infoBox.innerHTML = `
+                <div class="flex justify-between font-semibold"><span class="text-white">${p.name}</span><span class="text-indigo-400">$${p.retailPrice}</span></div>
+                <div class="text-xs text-slate-400">Качество: <span class="text-amber-400 font-bold">${p.quality}/100</span> | Себестоимость: $${p.unitCost}</div>
+            `;
+            whBox.innerHTML = `
+                <div class="flex justify-between"><span>Остаток:</span><span class="font-bold text-white">${p.stock.toLocaleString()} / ${p.batchSize.toLocaleString()} шт.</span></div>
+                <div class="flex justify-between"><span>Хранение:</span><span class="text-rose-400 font-bold">$${(p.stock * 0.5).toLocaleString()} / мес</span></div>
+                <div class="flex justify-between"><span>Завод:</span><span class="text-slate-300 capitalize">${p.factoryTier}</span></div>
+            `;
+            if (p.stock > 0) clearanceBox.classList.remove('hidden');
+            else clearanceBox.classList.add('hidden');
+
+            statsBox.innerHTML = `
+                <div class="flex justify-between"><span>Всего продано:</span><span class="font-bold text-emerald-400">${p.soldTotal.toLocaleString()} шт.</span></div>
+                <div class="flex justify-between"><span>Выручка:</span><span class="font-bold text-emerald-400">$${p.revenueTotal.toLocaleString()}</span></div>
+                <div class="flex justify-between"><span>Рейтинг критиков:</span><span class="font-bold text-amber-400">${(p.quality / 20).toFixed(1)} ★</span></div>
+            `;
+
+            if (reviewsBox && p.reviews) {
+                reviewsBox.innerHTML = p.reviews.map(r => {
+                    const color = r.type === 'pos' ? 'border-emerald-500/30 text-emerald-300 bg-emerald-950/10' :
+                                  r.type === 'neg' ? 'border-rose-500/30 text-rose-300 bg-rose-950/10' :
+                                  'border-slate-800 text-slate-300 bg-slate-950/60';
+                    const icon = r.type === 'pos' ? 'fa-thumbs-up text-emerald-400' :
+                                 r.type === 'neg' ? 'fa-thumbs-down text-rose-400' : 'fa-comment text-slate-400';
+                    return `
+                        <div class="p-3 border rounded-xl ${color} flex items-start gap-3 text-xs">
+                            <i class="fa-solid ${icon} mt-0.5"></i>
+                            <div>
+                                <span class="font-bold text-white block mb-0.5">${r.author}</span>
+                                <span>${r.text}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function getDifficultyMultiplier() {
+            if (game.difficulty === 'easy') return 1.3;
+            if (game.difficulty === 'hard') return 0.75;
+            return 1.0;
+        }
+
+        function checkAnnualAwards() {
+            let allPhonesThisYear = [...(game.phoneHistory || [])];
+            if (game.activePhone) allPhonesThisYear.push(game.activePhone);
+
+            const bestPhone = allPhonesThisYear.sort((a, b) => b.quality - a.quality)[0];
+
+            if (bestPhone && bestPhone.quality >= 70) {
+                game.money += 500000;
+                game.hype = Math.min(100, game.hype + 25);
+                logEvent(`🏆 ПОБЕДА! Модель «${bestPhone.name}» завоевала премию «Смартфон года»! Приз: +$500,000 и +25% Хайпа!`);
+                showToast(`🏆 «${bestPhone.name}» — Смартфон года! +$500k!`, 'success');
+            } else {
+                logEvent(`🏆 Итоги года: Ни один из ваших смартфонов не смог взять премию «Смартфон года» (требуется качество ≥ 70).`);
+            }
+        }
+
+        function nextMonth() {
+            game.dateMonth++;
+            if (game.dateMonth > 11) {
+                game.dateMonth = 0;
+                game.year++;
+                checkAnnualAwards();
+            }
+
+            let reqRndCost = (game.rndBudget || 0);
+            if (game.money >= reqRndCost && reqRndCost > 0) {
+                game.money -= reqRndCost;
+                let rpGain = (reqRndCost === 10000 ? 10 : (reqRndCost === 50000 ? 25 : 55));
+                game.rp += rpGain;
+            } else if (reqRndCost > 0) {
+                logEvent(`⚠️ Недостаточно средств для R&D!`);
+                game.rndBudget = 0;
+                document.getElementById('rnd-budget-select').value = "0";
+            }
+
+            let reqAdCost = (game.adBudget || 0);
+            if (game.money >= reqAdCost && reqAdCost > 0) {
+                game.money -= reqAdCost;
+                let hypeGain = Math.round(reqAdCost / 10000);
+                game.hype = Math.min(100, game.hype + hypeGain);
+            } else if (reqAdCost > 0) {
+                logEvent(`⚠️ Реклама остановлена.`);
+                game.adBudget = 0;
+                document.getElementById('ad-budget-range').value = 0;
+                updateAdBudget(0);
+            }
+
+            if (game.activePhone && game.activePhone.stock > 0) {
+                let p = game.activePhone;
+                let baseDemand = Math.round(((p.quality * 300) + (game.hype * 1500) - (p.retailPrice * 120)) * getDifficultyMultiplier());
+                baseDemand = Math.max(5000, baseDemand);
+
+                let sold = Math.min(p.stock, baseDemand);
+                let revenue = sold * p.retailPrice;
+
+                p.stock -= sold;
+                p.soldTotal += sold;
+                p.revenueTotal += revenue;
+                game.money += revenue;
+
+                if (p.stock > 0) {
+                    let storageFee = Math.round(p.stock * 0.5);
+                    game.money = Math.max(0, game.money - storageFee);
+                }
+
+                addFinanceHistory(months[game.dateMonth] + ' ' + game.year, revenue);
+                logEvent(`📊 Итоги: продано ${sold.toLocaleString()} шт. «${p.name}». Выручка: +$${revenue.toLocaleString()}`);
+            } else {
+                addFinanceHistory(months[game.dateMonth] + ' ' + game.year, 0);
+            }
+
+            const hypeDecay = game.difficulty === 'hard' ? 5 : game.difficulty === 'easy' ? 2 : 3;
+            game.hype = Math.max(0, game.hype - hypeDecay);
+            if (game.money < 0) game.money = 0;
+
+            updateUI();
+            updateDashboard();
+
+            if (game.settings && game.settings.autosave) {
+                localStorage.setItem('smartphoneTycoonSave', JSON.stringify(game));
+                showToast('💾 Автосохранение выполнено', 'info');
+            }
+        }
+
+        function resetData() {
+            if (!confirm('⚠️ Сбросить весь прогресс? Это необратимо!')) return;
+            localStorage.removeItem('smartphoneTycoonSave');
+            game = createInitialState();
+
+            if (game.difficulty === 'easy') game.money = 2500000;
+            if (game.difficulty === 'hard') game.money = 800000;
+
+            document.querySelector('header h1').innerText = game.companyName;
+            document.querySelector('header .text-indigo-400').innerText = game.ceoName;
+            document.getElementById('ad-budget-range').value = 0;
+            updateAdBudget(0);
+            document.getElementById('rnd-budget-select').value = '50000';
+
+            const initialLocked = [
+                { id: 'amoled90', text: '90Hz FHD+ AMOLED ($35) [🔒 R&D]' },
+                { id: 'amoled120', text: '120Hz LTPO AMOLED ($70) [🔒 R&D]' },
+                { id: 'glass', text: 'Закаленное стекло ($25) [🔒 R&D]' },
+                { id: 'titanium', text: 'Титановый фрейм ($65) [🔒 R&D]' },
+                { id: 'chip7', text: '7nm FinFET ($50) [🔒 R&D]' },
+                { id: 'chip3', text: '3nm Флагман ($110) [🔒 R&D]' },
+                { id: 'cam108', text: '108 MP Pixel Binning ($40) [🔒 R&D]' },
+                { id: 'camperiscope', text: 'Перископ 10x Zoom ($90) [🔒 R&D]' },
+                { id: 'bat5000', text: '5000 mAh Si/C ($22) [🔒 R&D]' },
+                { id: 'bat120w', text: '120W GaN Fast Charge ($45) [🔒 R&D]' },
+                { id: 'net5gsub6', text: '5G Sub-6GHz ($12) [🔒 R&D]' },
+                { id: 'net5gmm', text: '5G mmWave + Wi-Fi 7 ($30) [🔒 R&D]' },
+                { id: 'secoptical', text: 'Сканер под экраном ($15) [🔒 R&D]' },
+                { id: 'sec3dface', text: '3D Face ID + Ультразвук ($35) [🔒 R&D]' },
+                { id: 'audiostereo', text: 'Стерео Dolby Atmos ($10) [🔒 R&D]' },
+                { id: 'audiohifi', text: 'ЦАП (Hi-Fi DAC) + Стерео ($28) [🔒 R&D]' },
+                { id: 'chargeqi', text: 'Qi 15W Беспроводная ($12) [🔒 R&D]' },
+                { id: 'chargemag', text: '50W MagCharge ($25) [🔒 R&D]' },
+                { id: 'foldable', text: 'Складной Form-Factor ($130) [🔒 R&D]' },
+                { id: 'udc', text: 'Камера под экраном (UDC) ($115) [🔒 R&D]' },
+                { id: 'satellite', text: 'Спутниковая связь SOS ($55) [🔒 R&D]' }
+            ];
+            initialLocked.forEach(item => {
+                const opt = document.getElementById('opt-' + item.id);
+                if (opt) { opt.disabled = true; opt.text = item.text; }
+            });
+
+            updateUI();
+            updateDashboard();
+            updateBuilder();
+            renderRndTree();
+            renderArchive();
+            renderPromoHistory();
+            logEvent("🔄 Сохранения сброшены.");
+            showToast('🔄 Прогресс сброшен', 'info');
+        }
+
+        function saveGame(silent = false) {
+            localStorage.setItem('smartphoneTycoonSave', JSON.stringify(game));
+            if (!silent) showToast('💾 Игра сохранена!', 'success');
+        }
+
+        function loadGame(showNotif = false) {
+            try {
+                const saved = localStorage.getItem('smartphoneTycoonSave');
+                if (saved) {
+                    const loadedGame = JSON.parse(saved);
+                    if (loadedGame && typeof loadedGame.money === 'number') {
+                        game = loadedGame;
+                        if (!game.unlockedTechs) game.unlockedTechs = [];
+                        if (!game.phoneHistory) game.phoneHistory = [];
+                        if (!game.settings) game.settings = { notifications: true, animations: true, compact: false, autosave: false };
+                        if (!game.difficulty) game.difficulty = 'normal';
+                        if (!game.usedPromoCodes) game.usedPromoCodes = [];
+
+                        game.unlockedTechs.forEach(id => applyUnlockedTechUI(id));
+
+                        document.querySelector('header h1').innerText = game.companyName || "Apex Mobile";
+                        document.querySelector('header .text-indigo-400').innerText = game.ceoName || "Игрок";
+
+                        if (game.settings.compact) document.body.classList.add('compact-mode');
+                        if (game.settings.animations === false) {
+                            document.body.querySelectorAll('*').forEach(el => el.style.transitionDuration = '0s');
+                        }
+
+                        if (typeof game.adBudget === 'number') {
+                            document.getElementById('ad-budget-range').value = game.adBudget;
+                            updateAdBudget(game.adBudget);
+                        }
+
+                        if (typeof game.rndBudget === 'number') {
+                            const rndSelect = document.getElementById('rnd-budget-select');
+                            rndSelect.value = game.rndBudget.toString();
+                            if (rndSelect.value !== game.rndBudget.toString()) {
+                                rndSelect.value = "50000";
+                                game.rndBudget = 50000;
+                            }
+                        }
+
+                        logEvent("📂 Игра загружена.");
+                        if (showNotif) showToast('📂 Игра загружена!', 'success');
+                    }
+                } else if (showNotif) {
+                    showToast('⚠️ Сохранений не найдено', 'warning');
+                }
+            } catch (e) {
+                console.error("Ошибка загрузки", e);
+                localStorage.removeItem('smartphoneTycoonSave');
+                game = createInitialState();
+                if (showNotif) showToast('❌ Ошибка загрузки', 'error');
+            }
+            updateUI();
+            updateDashboard();
+            renderRndTree();
+            renderArchive();
+            renderPromoHistory();
+            updateBuilder();
+        }
+
+        function redeemPromoCode() {
+            const input = document.getElementById('promo-input');
+            const code = input.value.trim().toUpperCase();
+
+            if (!code) {
+                showToast('⚠️ Введите промокод', 'warning');
+                return;
+            }
+
+            if (game.usedPromoCodes && game.usedPromoCodes.some(p => p.code === code)) {
+                showToast('❌ Этот код уже был активирован', 'error');
+                return;
+            }
+
+            const promo = PROMO_CODES[code];
+            if (!promo) {
+                showToast('❌ Неверный промокод', 'error');
+                return;
+            }
+
+            let rewardMsg = '🎁 Промокод активирован!';
+            if (promo.reward.money) {
+                game.money += promo.reward.money;
+                rewardMsg += ` +$${promo.reward.money.toLocaleString()}`;
+            }
+            if (promo.reward.rp) {
+                game.rp += promo.reward.rp;
+                rewardMsg += ` +${promo.reward.rp} RP`;
+            }
+
+            if (!game.usedPromoCodes) game.usedPromoCodes = [];
+            game.usedPromoCodes.push({
+                code,
+                desc: promo.desc,
+                date: `${months[game.dateMonth]} ${game.year}`
+            });
+
+            input.value = '';
+            renderPromoHistory();
+            updateUI();
+            showToast(rewardMsg, 'success');
+            logEvent(`🎁 Активирован промокод «${code}»: ${promo.desc}`);
+        }
+
+        function renderPromoHistory() {
+            const box = document.getElementById('promo-history');
+            if (!box) return;
+
+            if (!game.usedPromoCodes || game.usedPromoCodes.length === 0) {
+                box.innerHTML = `<p class="text-xs text-slate-500 italic">Пока не активировано ни одного кода.</p>`;
+                return;
+            }
+
+            box.innerHTML = game.usedPromoCodes.map(p => `
+                <div class="flex justify-between items-center p-2.5 bg-slate-950/60 border border-slate-800 rounded-lg text-xs">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check-circle text-emerald-400"></i>
+                        <span class="font-mono font-bold text-white">${p.code}</span>
+                        <span class="text-amber-400 font-semibold">${p.desc}</span>
+                    </div>
+                    <span class="text-slate-600">${p.date}</span>
+                </div>
+            `).join('');
+        }
+
+        function openSettings() {
+            document.getElementById('settings-company-name').value = game.companyName || "Apex Mobile";
+            document.getElementById('settings-ceo-name').value = game.ceoName || "Игрок";
+
+            const diffRadio = document.querySelector(`input[name="difficulty"][value="${game.difficulty || 'normal'}"]`);
+            if (diffRadio) diffRadio.checked = true;
+
+            const s = game.settings || {};
+            document.getElementById('settings-notifications').checked = s.notifications !== false;
+            document.getElementById('settings-animations').checked = s.animations !== false;
+            document.getElementById('settings-compact').checked = s.compact === true;
+            document.getElementById('settings-autosave').checked = s.autosave === true;
+
+            renderPromoHistory();
+        }
+
+        function saveCompanyProfile() {
+            const newCompany = document.getElementById('settings-company-name').value.trim() || "Apex Mobile";
+            const newCeo = document.getElementById('settings-ceo-name').value.trim() || "Игрок";
+
+            game.companyName = newCompany;
+            game.ceoName = newCeo;
+
+            document.querySelector('header h1').innerText = newCompany;
+            document.querySelector('header .text-indigo-400').innerText = newCeo;
+
+            showToast(`✅ Профиль обновлён: ${newCompany}`, 'success');
+            if (game.settings && game.settings.autosave) saveGame(true);
+        }
+
+        function changeDifficulty(value) {
+            game.difficulty = value;
+            showToast(`🎯 Сложность: ${value === 'easy' ? 'Легко' : value === 'hard' ? 'Хардкор' : 'Нормально'}. Применится при новой игре.`, 'info');
+        }
+
+        function toggleSetting(key, val) {
+            if (!game.settings) game.settings = {};
+            game.settings[key] = val;
+
+            if (key === 'animations') {
+                document.body.style.transition = val ? '' : 'none';
+                document.querySelectorAll('*').forEach(el => {
+                    el.style.transitionDuration = val ? '' : '0s';
+                });
+            }
+            if (key === 'compact') {
+                document.body.classList.toggle('compact-mode', val);
+            }
+            if (key === 'autosave' && val) {
+                showToast('💾 Автосохранение включено', 'info');
+            }
+        }
+
+        function exportSave() {
+            try {
+                const data = JSON.stringify(game, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `smartphone-tycoon-${game.companyName.replace(/\s+/g, '_')}-${months[game.dateMonth]}-${game.year}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('📁 Сохранение экспортировано', 'success');
+            } catch (e) {
+                showToast('❌ Ошибка экспорта: ' + e.message, 'error');
+            }
+        }
+
+        function importSave(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!imported || typeof imported.money !== 'number') {
+                        throw new Error('Неверный формат файла');
+                    }
+                    if (!confirm('Импортировать сохранение? Текущий прогресс будет перезаписан.')) return;
+
+                    game = imported;
+                    if (!game.unlockedTechs) game.unlockedTechs = [];
+                    if (!game.phoneHistory) game.phoneHistory = [];
+                    if (!game.settings) game.settings = { notifications: true, animations: true, compact: false, autosave: false };
+                    if (!game.difficulty) game.difficulty = 'normal';
+                    if (!game.usedPromoCodes) game.usedPromoCodes = [];
+
+                    game.unlockedTechs.forEach(id => applyUnlockedTechUI(id));
+                    document.querySelector('header h1').innerText = game.companyName || "Apex Mobile";
+                    document.querySelector('header .text-indigo-400').innerText = game.ceoName || "Игрок";
+
+                    if (typeof game.adBudget === 'number') {
+                        document.getElementById('ad-budget-range').value = game.adBudget;
+                        updateAdBudget(game.adBudget);
+                    }
+                    if (typeof game.rndBudget === 'number') {
+                        document.getElementById('rnd-budget-select').value = game.rndBudget.toString();
+                    }
+
+                    localStorage.setItem('smartphoneTycoonSave', JSON.stringify(game));
+                    updateUI();
+                    updateDashboard();
+                    renderRndTree();
+                    renderArchive();
+                    openSettings();
+                    logEvent(`📂 Импортировано сохранение «${game.companyName}»`);
+                    showToast('✅ Сохранение импортировано!', 'success');
+                } catch (err) {
+                    showToast('❌ Ошибка импорта: ' + err.message, 'error');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmReset() { resetData(); }
+
+        function clearAllSaves() {
+            if (!confirm('Удалить ВСЕ сохранения из браузера? Текущая игра продолжится, но сохранений не будет.')) return;
+            localStorage.removeItem('smartphoneTycoonSave');
+            showToast('🗑️ Все сохранения удалены', 'success');
+        }
+
+        function renderArchive() {
+            const summaryBox = document.getElementById('archive-summary');
+            const listBox = document.getElementById('archive-list');
+            const sortSelect = document.getElementById('archive-sort');
+            const sortBy = sortSelect ? sortSelect.value : 'newest';
+
+            const allPhones = [...(game.phoneHistory || [])];
+            if (game.activePhone) allPhones.push(game.activePhone);
+
+            if (allPhones.length === 0) {
+                summaryBox.innerHTML = `<p class="col-span-full text-slate-400 italic text-sm">Пока не выпущено ни одной модели.</p>`;
+                listBox.innerHTML = `<p class="text-slate-400 italic text-sm">История пуста. Создайте свой первый смартфон!</p>`;
+                return;
+            }
+
+            const totalSold = allPhones.reduce((s, p) => s + p.soldTotal, 0);
+            const totalRevenue = allPhones.reduce((s, p) => s + p.revenueTotal, 0);
+            const totalCost = allPhones.reduce((s, p) => s + (p.costTotal || p.unitCost * p.batchSize), 0);
+            const totalProfit = totalRevenue - totalCost;
+
+            summaryBox.innerHTML = `
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Моделей</div>
+                    <div class="text-2xl font-bold text-white mt-1">${allPhones.length}</div>
+                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Продано</div>
+                    <div class="text-2xl font-bold text-cyan-400 mt-1">${totalSold.toLocaleString()}</div>
+                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Выручка</div>
+                    <div class="text-2xl font-bold text-emerald-400 mt-1">$${totalRevenue.toLocaleString()}</div>
+                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                    <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Прибыль</div>
+                    <div class="text-2xl font-bold ${totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} mt-1">
+                        ${totalProfit >= 0 ? '+' : ''}$${totalProfit.toLocaleString()}
+                    </div>
+                </div>
+            `;
+
+            let sorted = [...allPhones];
+            if (sortBy === 'newest') sorted.reverse();
+            else if (sortBy === 'profit') sorted.sort((a, b) => (b.revenueTotal - (b.costTotal || b.unitCost * b.batchSize)) - (a.revenueTotal - (a.costTotal || a.unitCost * a.batchSize)));
+            else if (sortBy === 'sold') sorted.sort((a, b) => b.soldTotal - a.soldTotal);
+            else if (sortBy === 'quality') sorted.sort((a, b) => b.quality - a.quality);
+
+            const topProfit = Math.max(...allPhones.map(p => p.revenueTotal - (p.costTotal || p.unitCost * p.batchSize)));
+
+            listBox.innerHTML = sorted.map(p => {
+                const profit = p.revenueTotal - (p.costTotal || p.unitCost * p.batchSize);
+                const sellThrough = p.batchSize > 0 ? Math.round((p.soldTotal / p.batchSize) * 100) : 0;
+                const isActive = game.activePhone && game.activePhone.id === p.id;
+                const isTop = profit === topProfit && allPhones.length > 1 && profit > 0;
+
+                const statusBadge = isActive
+                    ? `<span class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/20">● В ПРОДАЖЕ</span>`
+                    : `<span class="bg-slate-700/30 text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-slate-700">АРХИВ</span>`;
+
+                const topBadge = isTop
+                    ? `<span class="bg-amber-500/10 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-amber-500/20">🏆 ТОП</span>`
+                    : '';
+
+                return `
+                    <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 hover:border-indigo-500/40 transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-bold text-white">${p.name}</h3>
+                                    ${statusBadge}
+                                    ${topBadge}
+                                </div>
+                                <div class="text-xs text-slate-500 mt-1">
+                                    Запуск: ${p.launchDate || '—'}
+                                    ${p.archivedDate ? ` • Снят: ${p.archivedDate}` : ''}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-400">Цена</div>
+                                <div class="font-bold text-indigo-400">$${p.retailPrice}</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div>
+                                <div class="text-slate-500">Продано</div>
+                                <div class="font-bold text-cyan-400">${p.soldTotal.toLocaleString()} / ${p.batchSize.toLocaleString()}</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-500">Выручка</div>
+                                <div class="font-bold text-emerald-400">$${p.revenueTotal.toLocaleString()}</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-500">Прибыль</div>
+                                <div class="font-bold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                                    ${profit >= 0 ? '+' : ''}$${profit.toLocaleString()}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-slate-500">Качество</div>
+                                <div class="font-bold text-amber-400">${p.quality}/100</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                                <span>Реализовано партии</span>
+                                <span>${sellThrough}%</span>
+                            </div>
+                            <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full ${sellThrough >= 90 ? 'bg-emerald-500' : sellThrough >= 50 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${sellThrough}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let financeChart;
+        function initChart() {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            financeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Янв 2026'],
+                    datasets: [{
+                        label: 'Выручка за месяц ($)',
+                        data: [0],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function addFinanceHistory(label, revenue) {
+            if (financeChart.data.labels.length > 10) {
+                financeChart.data.labels.shift();
+                financeChart.data.datasets[0].data.shift();
+            }
+            financeChart.data.labels.push(label);
+            financeChart.data.datasets[0].data.push(revenue);
+            financeChart.update();
+        }
+
+        function updateChart() { financeChart.update(); }
+
+        window.onload = function() {
+            initChart();
+            updateBuilder();
+            loadGame();
+        };
+    </script>
+</body>
+</html>
